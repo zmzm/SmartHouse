@@ -20,8 +20,6 @@ public class Main {
         Integer[] array = handler.getData();
 
         Manager manager = new Manager(array[0], array[1], array[2], array[3]);
-
-        Thread thread = new Thread(manager);
-        thread.start();
+        manager.run();
     }
 }

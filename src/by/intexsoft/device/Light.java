@@ -1,17 +1,20 @@
 package by.intexsoft.device;
 
-import by.intexsoft.personalId.IPersonalID;
-import by.intexsoft.state.State;
+import by.intexsoft.manager.Manager;
+import by.intexsoft.messenger.Messenger;
+import by.intexsoft.personalId.ID;
+import by.intexsoft.state.States;
 
 /**
  * Created by Admin on 19.07.2015.
  */
-public class Light extends AbstractDevice {
+public class Light extends AbstractDevice implements Runnable, Messenger {
     private String name;
-    private IPersonalID<Integer> id;
-    private State state;
+    private ID<Integer> id;
+    private States state;
+    private boolean check = true;
 
-    public Light(String deviceName, IPersonalID<Integer> deviceId, State state) {
+    public Light(String deviceName, ID<Integer> deviceId, States state) {
         super(deviceName, deviceId, state);
         this.name = deviceName;
         this.id = deviceId;
@@ -26,25 +29,38 @@ public class Light extends AbstractDevice {
         this.name = name;
     }
 
-    public IPersonalID<Integer> getID() {
+    public ID<Integer> getID() {
         return id;
     }
 
-    public void setId(IPersonalID<Integer> id) {
-        this.id = id;
+    public States getState() {
+        return state;
     }
 
-    public String getState(){
-        if(state.equals(State.On)){
-            return "Кто-то подошел к двери. Свет включен!";
-        }
-        else
-            return "Кто-то свалил. Свет выключен!";
-    }
-
-    public void setState(State state){
+    public void setState(States state) {
         this.state = state;
     }
 
+    @Override
+    public void run() {
+        try {
+            while (check) {
+                if ((Manager.getTime() >= 1 && Manager.getTime() <= 19)) {
+                    this.state = States.Off;
+                } else {
+                    this.state = States.On;
+                    System.out.println(message());
+                }
+                Thread.sleep(2500);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String message() {
+        return "Свет включен!!!";
+    }
 }
 

@@ -3,30 +3,52 @@ package by.intexsoft.manager;
 import by.intexsoft.device.Conditioner;
 import by.intexsoft.device.Light;
 import by.intexsoft.device.Server;
+import by.intexsoft.messenger.Messenger;
+import by.intexsoft.state.States;
 
 import java.util.Random;
 
 /**
  * Created by Admin on 19.07.2015.
  */
-public class Manager implements Runnable {
-    private Integer minTemp;
-    private Integer maxTemp;
+public class Manager implements Runnable, Messenger {
+    private static Integer minTemp;
+    private static Integer maxTemp;
     private Integer startTime;
     private Integer endTime;
+    private static Integer currentTime;
+    private static Integer currentTemp;
     private static Random random = new Random();
 
     Server server = new Server("Server");
-    Conditioner conditioner = new Conditioner("Conditioner", server.generateID(), by.intexsoft.state.State.On);
-    Light light = new Light("Light", server.generateID(), by.intexsoft.state.State.Off);
+    Conditioner conditioner = new Conditioner("Conditioner", server.generateID(), States.On);
+    Light light = new Light("Light", server.generateID(), States.Off);
 
     public Manager(Integer startTime, Integer endTime, Integer maxTemp, Integer minTemp) {
         this.minTemp = minTemp;
         this.maxTemp = maxTemp;
         this.startTime = startTime;
         this.endTime = endTime;
+    }
 
-        conditioner.setTemperature(minTemp);
+    public static Integer getTime() {
+        return currentTime;
+    }
+
+    public static Integer getTemp() {
+        return currentTemp;
+    }
+
+    public static void setTemp(Integer t) {
+        currentTemp = t;
+    }
+
+    public static Integer getMinTemp() {
+        return minTemp;
+    }
+
+    public static Integer getMaxTemp() {
+        return maxTemp;
     }
 
     private static int randInt(int min, int max) {
@@ -35,39 +57,37 @@ public class Manager implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Текущее время: " + startTime + ":00");
-        System.out.println("Температура: " + minTemp);
-        System.out.println("");
+        currentTime = startTime;
+        currentTemp = minTemp;
 
-        while (startTime != endTime) {
+        Thread lightThread = new Thread(light);
+        lightThread.start();
 
-            int m = randInt(5, 10);
-            startTime++;
-            System.out.println("Текущее время: " + startTime + ":00");
-            minTemp += m;
-            if (minTemp >= maxTemp) {
-                //System.out.println(minTemp);
-                System.out.println("Что-то жарковато, кондиционер включен");
-                minTemp = 17;
-                conditioner.setTemperature(minTemp);
-                System.out.println("Температура: " + minTemp);
-            } else if (minTemp <= 15) {
-                //System.out.println(minTemp);
-                System.out.println("Что-то холодновато, кондиционер включен");
-                minTemp = 20;
-                conditioner.setTemperature(minTemp);
-                System.out.println("Температура: " + minTemp);
-            } else {
-                System.out.println("Температура: " + minTemp);
+        Thread conditionerThread = new Thread(conditioner);
+        conditionerThread.start();
+
+
+        while (currentTime != 1000) {
+            int m = randInt(1, 5);
+            currentTime++;
+
+            if (currentTime > 24) {
+                currentTime = 1;
             }
-            System.out.println("");
+
+            currentTemp += m;
+            System.out.println(message());
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(2500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("Конец :)");
+    }
+
+    @Override
+    public String message() {
+        return "Текущее время: " + currentTime + ":00 " + " Температура " + getTemp();
     }
 }

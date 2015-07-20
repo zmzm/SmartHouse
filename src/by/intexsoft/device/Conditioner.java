@@ -1,18 +1,21 @@
 package by.intexsoft.device;
 
-import by.intexsoft.personalId.IPersonalID;
-import by.intexsoft.state.State;
+import by.intexsoft.manager.Manager;
+import by.intexsoft.messenger.Messenger;
+import by.intexsoft.personalId.ID;
+import by.intexsoft.state.States;
 
 /**
  * Created by Admin on 19.07.2015.
  */
-public class Conditioner extends AbstractDevice {
+public class Conditioner extends AbstractDevice implements Runnable, Messenger {
     private String name;
-    private IPersonalID<Integer> id;
+    private ID<Integer> id;
     private int temperature;
-    private State state;
+    private States state;
+    private boolean check = true;
 
-    public Conditioner(String deviceName, IPersonalID<Integer> deviceId, State state) {
+    public Conditioner(String deviceName, ID<Integer> deviceId, States state) {
         super(deviceName, deviceId, state);
 
         this.name = deviceName;
@@ -20,27 +23,40 @@ public class Conditioner extends AbstractDevice {
         this.state = state;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
-    public IPersonalID<Integer> getID(){
+    public ID<Integer> getID() {
         return id;
     }
 
-    public void setId(IPersonalID<Integer> id){
-        this.id = id;
+    @Override
+    public void run() {
+        try {
+            while (check) {
+                if (Manager.getTemp() >= Manager.getMaxTemp() || Manager.getTemp() <= Manager.getMinTemp()) {
+                    state = States.On;
+                    temperature = 17;
+                    Manager.setTemp(temperature);
+                    System.out.println(message());
+                } else {
+                    state = States.Off;
+                }
+                Thread.sleep(2500);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public int getTemperature() {
-        return temperature;
-    }
 
-    public void setTemperature(int temperature) {
-        this.temperature = temperature;
+    @Override
+    public String message() {
+        return "Кондидионер включен!!!";
     }
 }
