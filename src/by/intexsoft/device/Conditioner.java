@@ -10,12 +10,11 @@ import by.intexsoft.state.States;
  */
 public class Conditioner extends AbstractDevice implements Runnable, Messenger {
     private String name;
-    private ID<Integer> id;
-    private int temperature;
+    private ID id;
     private States state;
     private boolean check = true;
 
-    public Conditioner(String deviceName, ID<Integer> deviceId, States state) {
+    public Conditioner(String deviceName, ID deviceId, States state) {
         super(deviceName, deviceId, state);
 
         this.name = deviceName;
@@ -39,15 +38,15 @@ public class Conditioner extends AbstractDevice implements Runnable, Messenger {
     public void run() {
         try {
             while (check) {
-                if (Manager.getTemp() >= Manager.getMaxTemp() || Manager.getTemp() <= Manager.getMinTemp()) {
+                if (Manager.environmentData.getTemp() >= Manager.environmentData.getMaxTemp()
+                        || Manager.environmentData.getTemp() <= Manager.environmentData.getMinTemp()) {
                     state = States.On;
-                    temperature = 17;
-                    Manager.setTemp(temperature);
                     System.out.println(message());
+                    Manager.environmentData.setTemp(17);
                 } else {
                     state = States.Off;
                 }
-                Thread.sleep(2500);
+                Thread.sleep(1500);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

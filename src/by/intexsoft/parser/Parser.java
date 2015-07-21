@@ -10,10 +10,10 @@ import java.util.ArrayList;
  * Created by Admin on 19.07.2015.
  */
 public class Parser extends DefaultHandler {
-    private ArrayList<Integer> data;
+    static ArrayList<Integer> data;
     String thisElement = "";
 
-    public Integer[] getData() {
+    public static Integer[] getData() {
         return data.toArray(new Integer[data.size()]);
     }
 

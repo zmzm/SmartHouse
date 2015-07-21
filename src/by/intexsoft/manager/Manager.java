@@ -3,7 +3,9 @@ package by.intexsoft.manager;
 import by.intexsoft.device.Conditioner;
 import by.intexsoft.device.Light;
 import by.intexsoft.device.Server;
+import by.intexsoft.enviroment.EnvironmentData;
 import by.intexsoft.messenger.Messenger;
+import by.intexsoft.parser.Parser;
 import by.intexsoft.state.States;
 
 import java.util.Random;
@@ -12,53 +14,18 @@ import java.util.Random;
  * Created by Admin on 19.07.2015.
  */
 public class Manager implements Runnable, Messenger {
-    private static Integer minTemp;
-    private static Integer maxTemp;
-    private Integer startTime;
-    private Integer endTime;
-    private static Integer currentTime;
-    private static Integer currentTemp;
     private static Random random = new Random();
+    private static Integer[] array = Parser.getData();
 
-    Server server = new Server("Server");
-    Conditioner conditioner = new Conditioner("Conditioner", server.generateID(), States.On);
-    Light light = new Light("Light", server.generateID(), States.Off);
-
-    public Manager(Integer startTime, Integer endTime, Integer maxTemp, Integer minTemp) {
-        this.minTemp = minTemp;
-        this.maxTemp = maxTemp;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public static Integer getTime() {
-        return currentTime;
-    }
-
-    public static Integer getTemp() {
-        return currentTemp;
-    }
-
-    public static void setTemp(Integer t) {
-        currentTemp = t;
-    }
-
-    public static Integer getMinTemp() {
-        return minTemp;
-    }
-
-    public static Integer getMaxTemp() {
-        return maxTemp;
-    }
-
-    private static int randInt(int min, int max) {
-        return random.nextInt((max - min) + 1) + min;
-    }
+    public static EnvironmentData environmentData = new EnvironmentData(array[0], array[1], array[2], array[3]);
+    public Server server = new Server("Server");
+    public Conditioner conditioner = new Conditioner("Conditioner", server.generateID(), States.On);
+    public Light light = new Light("Light", server.generateID(), States.Off);
 
     @Override
     public void run() {
-        currentTime = startTime;
-        currentTemp = minTemp;
+        Thread environmentThread = new Thread(environmentData);
+        environmentThread.start();
 
         Thread lightThread = new Thread(light);
         lightThread.start();
@@ -66,18 +33,8 @@ public class Manager implements Runnable, Messenger {
         Thread conditionerThread = new Thread(conditioner);
         conditionerThread.start();
 
-
-        while (currentTime != 1000) {
-            int m = randInt(1, 5);
-            currentTime++;
-
-            if (currentTime > 24) {
-                currentTime = 1;
-            }
-
-            currentTemp += m;
+        while (true) {
             System.out.println(message());
-
             try {
                 Thread.sleep(2500);
             } catch (InterruptedException e) {
@@ -88,6 +45,6 @@ public class Manager implements Runnable, Messenger {
 
     @Override
     public String message() {
-        return "Текущее время: " + currentTime + ":00 " + " Температура " + getTemp();
+        return "Текущее время: " + environmentData.getTime() + ":00 " + " Температура " + environmentData.getTemp();
     }
 }

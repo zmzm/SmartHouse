@@ -17,9 +17,9 @@ public class Main {
         SAXParser parser = factory.newSAXParser();
         Parser handler = new Parser();
         parser.parse(new File("D:\\Неизвестная папка\\Лабораторные\\Java\\SmartHouse\\data.xml"), handler);
-        Integer[] array = handler.getData();
 
-        Manager manager = new Manager(array[0], array[1], array[2], array[3]);
-        manager.run();
+        Manager manager = new Manager();
+        Thread mainThread = new Thread(manager);
+        mainThread.start();
     }
 }

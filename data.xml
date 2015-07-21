@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <starttime>10</starttime>
-  <endtime>22</endtime>
+  <endtime>24</endtime>
   
   <maxtemp>30</maxtemp>
   <mintemp>15</mintemp>

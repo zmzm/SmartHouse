@@ -10,11 +10,11 @@ import by.intexsoft.state.States;
  */
 public class Light extends AbstractDevice implements Runnable, Messenger {
     private String name;
-    private ID<Integer> id;
+    private ID id;
     private States state;
     private boolean check = true;
 
-    public Light(String deviceName, ID<Integer> deviceId, States state) {
+    public Light(String deviceName, ID deviceId, States state) {
         super(deviceName, deviceId, state);
         this.name = deviceName;
         this.id = deviceId;
@@ -45,7 +45,7 @@ public class Light extends AbstractDevice implements Runnable, Messenger {
     public void run() {
         try {
             while (check) {
-                if ((Manager.getTime() >= 1 && Manager.getTime() <= 19)) {
+                if ((Manager.environmentData.getTime() >= 1 && Manager.environmentData.getTime() <= 19)) {
                     this.state = States.Off;
                 } else {
                     this.state = States.On;
